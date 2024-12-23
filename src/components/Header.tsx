@@ -1,7 +1,7 @@
 const Header: React.FC = () => {
 	return (
 		<header style={styles.header}>
-			<h1 style={styles.title}>Posture Checker</h1>
+			<h1 style={styles.title}>Posture Reminder</h1>
 		</header>
 	);
 };
