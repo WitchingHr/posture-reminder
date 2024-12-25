@@ -9,7 +9,7 @@ const Main: React.FC = () => {
 
 	// play sound
 	function playAlert() {
-		const sound = new Audio("../public/audio/chime.wav");
+		const sound = new Audio("./audio/chime.wav");
 		sound.play();
 	}
 
