@@ -15,36 +15,44 @@ const Main: React.FC = () => {
 
 	// run when isTiming updates
 	useEffect(() => {
+		// for interval id
 		let timer: number | null = null;
-		let countdown: number | null = null;
 
 		if (isTiming) {
-			// set countdown value on start
-			setTimeLeft(120);
-
 			// play sound on start
 			playAlert();
-			// then play sound every 2 minutes
-			timer = window.setInterval(playAlert, 120000);
+			// reset time
+			setTimeLeft(120);
 
-			// update countdown value
-			countdown = setInterval(() => {
-				setTimeLeft((prev) => {
-					if (prev > 1) {
-						// decrease by 1 each second
-						return prev - 1;
-					} else {
-						// reset timer at zero
-						return 120;
-					}
-				});
+			// define time when timer ends
+			let endTime = Date.now() + timeLeft * 1000;
+
+			//  start timer
+			timer = window.setInterval(() => {
+				// check time remaining
+				// find difference between end time and present
+				// divide by 1000 to get seconds remaining
+				// if less than zero, return zero
+				const timeRemaining = Math.max(
+					Math.ceil((endTime - Date.now()) / 1000),
+					0
+				);
+
+				if (timeRemaining == 0) {
+					// if zero play sound, reset time to 120s and recalc endtime
+					playAlert();
+					setTimeLeft(120);
+					endTime = Date.now() + timeLeft * 1000;
+				} else {
+					// else decrease time left by 1 second
+					setTimeLeft((prev) => prev - 1);
+				}
 			}, 1000);
 		}
 
 		return () => {
 			//  cleanup on unmount
 			if (timer) clearInterval(timer);
-			if (countdown) clearInterval(countdown);
 		};
 	}, [isTiming]);
 
@@ -61,15 +69,9 @@ const Main: React.FC = () => {
 		return () => window.removeEventListener("keydown", handleKeyPress);
 	}, []);
 
-	// format seconds
-	let seconds: number | string;
-	if (timeLeft % 60 == 0) {
-		seconds = "00";
-	} else if (timeLeft % 60 < 10) {
-		seconds = `0${timeLeft % 60}`;
-	} else {
-		seconds = timeLeft % 60;
-	}
+	//  format time left to display mm:ss
+	const minutes = Math.floor(timeLeft / 60);
+	const seconds = String(timeLeft % 60).padStart(2, "0");
 
 	return (
 		<main className="bg-slate-100 h-full">
@@ -84,11 +86,11 @@ const Main: React.FC = () => {
 				{isTiming && (
 					<div className="mx-auto flex gap-2">
 						<span className="text-slate-600">
-							{/* format time left MM:SS */}
+							{/* format time left mm:ss */}
 							Time left:
 						</span>
 						<span className="text-orange-600">
-							{Math.trunc(timeLeft / 60)}:{seconds}
+							{minutes}:{seconds}
 						</span>
 					</div>
 				)}
